@@ -24,7 +24,7 @@ int main(int argc, const char** argv)
 	}
 	if(std::string(argv[1]) == "--help")
 	{
-		std::cout << "./PopularWords 'file name'" << std::endl;
+		std::cout << "./PopularWords [file name]" << std::endl;
 		return 0;
 	}
 	//determine the start time of the program
