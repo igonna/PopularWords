@@ -1,20 +1,26 @@
 #include "includes.h"
 #include "analyzeText.h"
+
+#define LINUX
+//#define WINDOWS
+#ifdef LINUX
+#define CLEAN_WINDOW_COMMAND "clear"
+#endif
+#ifdef WINDOWS
+#define CLEAN_WINDOW_COMMAND
+#endif
+
+void stateOutput(std::string* str, bool* isContinue);
 auto STime = std::chrono::steady_clock::now();
-inline void initSTime(void)
-{
-	STime = std::chrono::steady_clock::now();
-}
-inline void showETime(void)
-{
-	auto ETime = std::chrono::steady_clock::now();
-        std::chrono::duration<double> elapsed_seconds = ETime - STime;
-	std::cout << std::fixed << std::setprecision(2);
-//	std::cout << "\t(" << elapsed_seconds.count() << "s)." << std::endl;
-	std::cout << std::endl;
-}
+void initSTime(void);
+void showETime(void);
+
 int main(int argc, const char** argv)
-{
+{	
+	std::string stateString = "Processing";
+        bool isOutputThreadContinue = true;
+        std::thread thread_1(stateOutput, &stateString, &isOutputThreadContinue);
+	
 	//processing argv values
 	if(argc != 2)
 	{
@@ -30,40 +36,27 @@ int main(int argc, const char** argv)
 	//determine the start time of the program
 	auto timeOfStart = std::chrono::steady_clock::now();
 	//Creating data
-	std::cout << "Creating data. Step (1/12).";
-	initSTime();
+	stateString = "Creating data. step(1/10)";
 	std::ofstream ofile;
 	std::string str;
 	analyzeText textAnalyser;
-	showETime();
 
 	//processing string
-	std::cout << "Getting string from file. Step (2/12).";
-	initSTime();
+	stateString = "Getting string from file. step(2/10)";
 	str = textAnalyser.getStringFromFile(argv[1]);
-	showETime();
-	std::cout << "Removing extra symbols. Step (3/12).";
-	initSTime();
+	stateString = "Removing extra symbols. step(3/10)";
 	str = textAnalyser.delExtraSymbols(str);
-	showETime();
-	std::cout << "Removing extra spaces. Step (4/12).";
-	initSTime();
+	stateString = "Removing extra spaces. step(4/10)";
 	str = textAnalyser.delExtraSpaces(str);
-	showETime();
 	
 	//counting data for allocting memory
-	std::cout << "Counting total words. Step (5/12).";
-	initSTime();
+	stateString = "Counting total words. step(5/10)";
 	unsigned int array_size = textAnalyser.totalWords(str);
-	showETime();
-	std::cout << "Searching the biggest word. Step (6/12).";
-	initSTime();
+	stateString = "Searching the biggest word. step(6/10)";
 	unsigned int word_size = textAnalyser.theBiggestWordInString(str) + 1;
-	showETime();
 
 	//allocating memory for array which will be using for copy string to array
-	std::cout << "Allocating memory. Step (7/12).";
-	initSTime();
+	stateString = "Allocating memory. step(7/10)";
 	char** arr = new char*[array_size];
 	for(unsigned int step = 0; step < array_size; ++step)
 		arr[step] = new char[word_size];
@@ -72,32 +65,22 @@ int main(int argc, const char** argv)
 	unsigned int* arrQuantityWords = new unsigned int[array_size];
 	for(unsigned int step = 0; step < array_size; ++step)
 		arrQuantityWords[step] = 0;
-	showETime();
 
 	//copying string to array
-	std::cout << "Converting string to array. Step (8/12).";
-	initSTime();
+	stateString = "Converting string to array. step(8/10)";
 	textAnalyser.fromStringToArray(str.c_str(), arr, array_size, word_size);
-	showETime();
 
 	//removing extra words
-	std::cout << "Removing extra words. Step (9/12).";
-	initSTime();	
+	stateString = "Removing extra words. step(9/10)";	
 	textAnalyser.delExtraWords(arr, arrQuantityWords, array_size);
-	showETime();
 
 	//sorting array
-	std::cout << "Sorting words. Step (10/12).";
-	initSTime();
+	stateString = "Sorting words. step(10/10)";
 	textAnalyser.synchronizedBubbleSort(arr, arrQuantityWords, array_size, word_size);
 //	textAnalyser.quickSort(arrQuantityWords, 0, array_size - 1, arr);
-	showETime();
 
 	//output array to file
-	std::cout << "Outputing data to file. Step (11/12).";
-	initSTime();
 	std::string nameOfOutputFile = textAnalyser.outDataToFile(argv[1], arr, array_size);
-	showETime();
 
 	//cleaning memory
 	std::cout << "Cleaning memory. Step (12/12).";
@@ -115,4 +98,35 @@ int main(int argc, const char** argv)
 	std::chrono::duration<double> elapsed_seconds = timeOfEnd - timeOfStart;
 	std::cout << "Total spent time: " << elapsed_seconds.count() << "s" << std::endl;
 	return 0;
+}
+void clearWindowPrintWait(std::string* str, std::string str_2)
+{
+        using namespace std::chrono_literals;
+        system(CLEAN_WINDOW_COMMAND);
+        std::cout << *str << str_2 << std::endl;
+        std::this_thread::sleep_for(1s);
+}
+void stateOutput(std::string* str, bool* isContinue)
+{
+        using namespace std::chrono_literals;
+        while(*isContinue)
+        {
+                clearWindowPrintWait(str, " .");
+                clearWindowPrintWait(str, " ..");
+                clearWindowPrintWait(str, " ...");
+        }
+}
+
+void initSTime(void)
+{
+        STime = std::chrono::steady_clock::now();
+}
+
+inline void showETime(void)
+{
+        auto ETime = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed_seconds = ETime - STime;
+        std::cout << std::fixed << std::setprecision(2);
+        std::cout << "\t(" << elapsed_seconds.count() << "s)." << std::endl;
+//      std::cout << std::endl;
 }
