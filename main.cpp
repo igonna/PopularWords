@@ -78,7 +78,8 @@ int main(int argc, const char** argv)
 	stateString = "Sorting words. step(10/10)";
 	textAnalyser.synchronizedBubbleSort(arr, arrQuantityWords, array_size, word_size);
 //	textAnalyser.quickSort(arrQuantityWords, 0, array_size - 1, arr);
-
+        isOutputThreadContinue = false;
+        thread_1.detach();
 	//output array to file
 	std::string nameOfOutputFile = textAnalyser.outDataToFile(argv[1], arr, array_size);
 
