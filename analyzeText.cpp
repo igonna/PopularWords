@@ -4,6 +4,10 @@ analyzeText::~analyzeText(void)
 {
 	if(buff)
 		delete[] buff;
+	if(string_array)
+		delete[] string_array;
+	if(arrQuaWords)
+		delete[] arrQuaWords;
 }
 
 std::string analyzeText::getStringFromFile(std::string fileName)const
